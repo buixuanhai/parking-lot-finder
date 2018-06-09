@@ -3,10 +3,11 @@ import ParkingLotMap from './components/ParkingLotMap';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { getLocationSuccess } from './actions/ui';
+import Header from './components/Header';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
-const AppTitle = styled.h3`
-  color: blue;
-  text-align: center;
+const MapContainer = styled.div`
+  height: calc(100vh - 100px);
 `;
 const ButtonContainer = styled.div`
   display: flex;
@@ -16,42 +17,27 @@ const ButtonContainer = styled.div`
 const Button = styled.button`
   margin: 2px;
 `;
-
 class App extends React.Component {
   state = {
-    isMarkerShown: false
+    isMarkerShown: true,
   };
 
   componentDidMount() {
-    this.delayedShowMarker();
+    this.getLocation();
   }
-
-  delayedShowMarker = () => {
-    setTimeout(() => {
-      this.setState({ isMarkerShown: true });
-    }, 3000);
-  };
 
   handleMarkerClick = () => {
     this.setState({ isMarkerShown: false });
     this.delayedShowMarker();
   };
 
-  getCurrentLocation = async () => {};
-
-  showNearbyParkingLots = async () => {
-    if (this.props.location) {
-      console.log(this.props.position);
+  getLocation = async () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(({ coords: { longitude, latitude } }) => {
+        this.props.getLocationSuccess({ lng: longitude, lat: latitude });
+      });
     } else {
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          ({ coords: { longitude, latitude } }) => {
-            this.props.getLocationSuccess({ lng: longitude, lat: latitude });
-          }
-        );
-      } else {
-        alert("Your brower doesn't support geolocation");
-      }
+      alert("Your brower doesn't support geolocation");
     }
   };
 
@@ -59,23 +45,37 @@ class App extends React.Component {
     const { location } = this.props;
     return (
       <div>
-        <AppTitle>Parking lot finder</AppTitle>
-        <ButtonContainer>
-          <Button className="btn" onClick={this.showNearbyParkingLots}>
-            Find nearby
-          </Button>
-          <Button className="btn">Add parking lot</Button>
-        </ButtonContainer>
-        <ParkingLotMap
-          isMarkerShown={this.state.isMarkerShown}
-          onMarkerClick={this.handleMarkerClick}
-          center={location}
-        />
+        <Header title="Parking lot finder">
+          <ButtonContainer>
+            <Button className="btn" onClick={this.getLocation}>
+              Find nearby
+            </Button>
+            <Button className="btn">Add parking lot</Button>
+          </ButtonContainer>
+        </Header>
+        <Tabs>
+          <TabList>
+            <Tab>Map</Tab>
+            <Tab>List</Tab>
+          </TabList>
+          <TabPanel>
+            <MapContainer>
+              <ParkingLotMap
+                isMarkerShown={this.state.isMarkerShown}
+                onMarkerClick={this.handleMarkerClick}
+                center={location}
+              />
+            </MapContainer>
+          </TabPanel>
+          <TabPanel>
+            <h2>Any content 2</h2>
+          </TabPanel>
+        </Tabs>
       </div>
     );
   }
 }
 
 export default connect(state => ({ location: state.ui.location }), {
-  getLocationSuccess
+  getLocationSuccess,
 })(App);
