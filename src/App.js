@@ -1,81 +1,93 @@
-import React from 'react';
-import ParkingLotMap from './components/ParkingLotMap';
-import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { getLocationSuccess } from './actions/ui';
-import Header from './components/Header';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import React from "react";
+import styled from "styled-components";
+import Header from "./components/Header";
+import Tabs from "antd/lib/tabs";
+import { Button } from "antd";
 
-const MapContainer = styled.div`
-  height: calc(100vh - 100px);
+import { connect } from "react-redux";
+import { compose } from "redux";
+import { push } from "react-router-redux";
+
+import { firebaseConnect } from "react-redux-firebase";
+import StoryAdd from "./components/Story/Add";
+import "./App.css";
+
+const TabPane = Tabs.TabPane;
+
+const TabContainer = styled.div`
+	position: absolute;
+	margin-top: -20px;
+	bottom: 0;
+	left: 0;
+	right: 0;
 `;
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
+
+const TabContent = styled.div`
+	height: calc(100vh - 150px);
 `;
-const Button = styled.button`
-  margin: 2px;
+
+const LogoutButton = styled.div`
+	display: flex;
+	justify-content: flex-end;
+	margin: 10px;
 `;
+
 class App extends React.Component {
-  state = {
-    isMarkerShown: true,
-  };
+	state = {
+		tabKey: "1"
+	};
 
-  componentDidMount() {
-    this.getLocation();
-  }
+	onLogout = () => {
+		this.props.firebase.logout();
+	};
 
-  handleMarkerClick = () => {
-    this.setState({ isMarkerShown: false });
-    this.delayedShowMarker();
-  };
+	render() {
+		const { isEmpty, isLoaded } = this.props.auth;
 
-  getLocation = async () => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(({ coords: { longitude, latitude } }) => {
-        this.props.getLocationSuccess({ lng: longitude, lat: latitude });
-      });
-    } else {
-      alert("Your brower doesn't support geolocation");
-    }
-  };
-
-  render() {
-    const { location } = this.props;
-    return (
-      <div>
-        <Header title="Parking lot finder">
-          <ButtonContainer>
-            <Button className="btn" onClick={this.getLocation}>
-              Find nearby
-            </Button>
-            <Button className="btn">Add parking lot</Button>
-          </ButtonContainer>
-        </Header>
-        <Tabs>
-          <TabList>
-            <Tab>Map</Tab>
-            <Tab>List</Tab>
-          </TabList>
-          <TabPanel>
-            <MapContainer>
-              <ParkingLotMap
-                isMarkerShown={this.state.isMarkerShown}
-                onMarkerClick={this.handleMarkerClick}
-                center={location}
-              />
-            </MapContainer>
-          </TabPanel>
-          <TabPanel>
-            <h2>Any content 2</h2>
-          </TabPanel>
-        </Tabs>
-      </div>
-    );
-  }
+		return (
+			<div>
+				{!isEmpty && (
+					<LogoutButton>
+						<Button size="small" onClick={this.onLogout}>
+							Logout
+						</Button>
+					</LogoutButton>
+				)}
+				<Header title="English story" />
+				<TabContainer>
+					<Tabs
+						defaultActiveKey={this.state.tabKey}
+						onChange={tabKey => this.setState({ tabKey })}
+						tabBarStyle={{
+							width: "100%"
+						}}
+						tabPosition="bottom"
+					>
+						<TabPane tab="Stories" key="1">
+							<TabContent />
+						</TabPane>
+						<TabPane tab="Add" key="2">
+							<TabContent style={{ margin: 10 }}>
+								<StoryAdd isEmpty={isEmpty} isLoaded={isLoaded} />
+							</TabContent>
+						</TabPane>
+					</Tabs>
+				</TabContainer>
+			</div>
+		);
+	}
 }
 
-export default connect(state => ({ location: state.ui.location }), {
-  getLocationSuccess,
-})(App);
+export default compose(
+	firebaseConnect(() => {
+		return ["todos"];
+	}),
+	connect(
+		state => ({
+			todos: state.firebase.data.todos,
+			profile: state.firebase.profile,
+			auth: state.firebase.auth
+		}),
+		{ push }
+	)
+)(App);

@@ -1,7 +1,9 @@
-.react-tabs__tab-list {
-  list-style-type: none;
-}
+@import '~antd/dist/antd.css';
 
-.react-tabs__tab {
-  float: left;
+.ant-tabs-nav.ant-tabs-nav-animated {
+  display: flex;
+}
+.ant-tabs-tab {
+  flex: 1;
+  text-align: center;
 }
