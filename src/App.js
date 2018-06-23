@@ -42,68 +42,68 @@ const TabContent = styled.div`
 
 class App extends React.Component {
 	state = {
-		tabKey: "1"
+	  tabKey: "1"
 	};
 
 	onLogout = () => {
-		this.props.firebase.logout().then(() => message.success("Logged out"));
+	  this.props.firebase.logout().then(() => message.success("Logged out"));
 	};
 
 	render() {
-		const {
-			stories,
-			auth: { isEmpty, isLoaded }
-		} = this.props;
+	  const {
+	    stories,
+	    auth: { isEmpty, isLoaded }
+	  } = this.props;
 
-		return (
-			<AppContainer id="test">
-				{!isEmpty && (
-					<Button
-						size="small"
-						onClick={this.onLogout}
-						style={{ position: "absolute", top: 10, right: 10, zIndex: 100 }}
-					>
+	  return (
+	    <AppContainer id="test">
+	      {!isEmpty && (
+	        <Button
+	          size="small"
+	          onClick={this.onLogout}
+	          style={{ position: "absolute", top: 10, right: 10, zIndex: 100 }}
+	        >
 						Logout
-					</Button>
-				)}
-				<Header title="English story" />
-				<TabContainer>
-					<Tabs
-						defaultActiveKey={this.state.tabKey}
-						onChange={tabKey => this.setState({ tabKey })}
-						tabBarStyle={{
-							width: "100%"
-						}}
-						tabPosition="bottom"
-						style={{ width: "100%" }}
-					>
-						<TabPane tab="Stories" key="1">
-							<TabContent>
-								<StoryList stories={stories} />
-							</TabContent>
-						</TabPane>
-						<TabPane tab="Add" key="2">
-							<TabContent>
-								<StoryAdd isEmpty={isEmpty} isLoaded={isLoaded} />
-							</TabContent>
-						</TabPane>
-					</Tabs>
-				</TabContainer>
-			</AppContainer>
-		);
+	        </Button>
+	      )}
+	      <Header title="English story" />
+	      <TabContainer>
+	        <Tabs
+	          defaultActiveKey={this.state.tabKey}
+	          onChange={tabKey => this.setState({ tabKey })}
+	          tabBarStyle={{
+	            width: "100%"
+	          }}
+	          tabPosition="bottom"
+	          style={{ width: "100%" }}
+	        >
+	          <TabPane tab="Stories" key="1">
+	            <TabContent>
+	              <StoryList stories={stories} />
+	            </TabContent>
+	          </TabPane>
+	          <TabPane tab="Add" key="2">
+	            <TabContent>
+	              <StoryAdd isEmpty={isEmpty} isLoaded={isLoaded} />
+	            </TabContent>
+	          </TabPane>
+	        </Tabs>
+	      </TabContainer>
+	    </AppContainer>
+	  );
 	}
 }
 
 export default compose(
-	firebaseConnect(() => {
-		return ["stories"];
-	}),
-	connect(
-		state => ({
-			stories: state.firebase.data.stories,
-			profile: state.firebase.profile,
-			auth: state.firebase.auth
-		}),
-		{ push }
-	)
+  firebaseConnect(() => {
+    return ["stories"];
+  }),
+  connect(
+    state => ({
+      stories: state.firebase.data.stories,
+      profile: state.firebase.profile,
+      auth: state.firebase.auth
+    }),
+    { push }
+  )
 )(App);

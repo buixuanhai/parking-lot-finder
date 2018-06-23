@@ -4,8 +4,8 @@ import produce from "immer";
 const initialState = {};
 
 export default produce((draft = initialState, action) => {
-	switch (action.type) {
-	default:
-		return draft;
-	}
+  switch (action.type) {
+  default:
+    return draft;
+  }
 });

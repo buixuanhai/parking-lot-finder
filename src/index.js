@@ -13,9 +13,9 @@ import { reactReduxFirebase } from "react-redux-firebase";
 import { Route } from "react-router";
 import createHistory from "history/createBrowserHistory";
 import {
-	ConnectedRouter,
-	routerReducer,
-	routerMiddleware
+  ConnectedRouter,
+  routerReducer,
+  routerMiddleware
 } from "react-router-redux";
 import Loadable from "react-loadable";
 require("dotenv").config();
@@ -23,74 +23,74 @@ require("dotenv").config();
 const Loading = () => <p>Loading</p>;
 
 const App = Loadable({
-	loader: () => import("./App"),
-	loading: Loading
+  loader: () => import("./App"),
+  loading: Loading
 });
 const StoryDetail = Loadable({
-	loader: () => import("./components/Story/Detail"),
-	loading: Loading
+  loader: () => import("./components/Story/Detail"),
+  loading: Loading
 });
 const Login = Loadable({
-	loader: () => import("./components/Login"),
-	loading: Loading
+  loader: () => import("./components/Login"),
+  loading: Loading
 });
 
 export const history = createHistory();
 const historyMiddleware = routerMiddleware(history);
 
 const composeEnhancers =
-	typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
-		? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
-		: compose;
+  typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose;
 
 const middleware = [historyMiddleware];
 const enhancer = composeEnhancers(
-	applyMiddleware(...middleware)
-	// other store enhancers if any
+  applyMiddleware(...middleware)
+  // other store enhancers if any
 );
 
 const firebaseConfig = {
-	apiKey: process.env.REACT_APP_apiKey,
-	authDomain: process.env.REACT_APP_authDomain,
-	databaseURL: process.env.REACT_APP_databaseURL,
-	projectId: process.env.REACT_APP_projectId,
-	storageBucket: process.env.REACT_APP_storageBucket,
-	messagingSenderId: process.env.REACT_APP_messagingSenderId
+  apiKey: process.env.REACT_APP_apiKey,
+  authDomain: process.env.REACT_APP_authDomain,
+  databaseURL: process.env.REACT_APP_databaseURL,
+  projectId: process.env.REACT_APP_projectId,
+  storageBucket: process.env.REACT_APP_storageBucket,
+  messagingSenderId: process.env.REACT_APP_messagingSenderId
 };
 
 firebase.initializeApp(firebaseConfig);
 
 // react-redux-firebase options
 const config = {
-	userProfile: "users", // firebase root where user profiles are stored
-	enableLogging: false // enable/disable Firebase's database logging
+  userProfile: "users", // firebase root where user profiles are stored
+  enableLogging: false // enable/disable Firebase's database logging
 };
 
 // Add redux Firebase to compose
 const createStoreWithFirebase = compose(reactReduxFirebase(firebase, config))(
-	createStore
+  createStore
 );
 
 const store = createStoreWithFirebase(
-	combineReducers({
-		ui,
-		firebase: firebaseReducer,
-		router: routerReducer
-	}),
-	enhancer
+  combineReducers({
+    ui,
+    firebase: firebaseReducer,
+    router: routerReducer
+  }),
+  enhancer
 );
 
 ReactDOM.render(
-	<Provider store={store}>
-		<ConnectedRouter history={history}>
-			<div>
-				<Route exact path="/" component={App} />
-				<Route exact path="/stories/:id" component={StoryDetail} />
-				<Route exact path="/login" component={Login} />
-			</div>
-		</ConnectedRouter>
-	</Provider>,
-	document.getElementById("root")
+  <Provider store={store}>
+    <ConnectedRouter history={history}>
+      <div>
+        <Route exact path="/" component={App} />
+        <Route exact path="/stories/:id" component={StoryDetail} />
+        <Route exact path="/login" component={Login} />
+      </div>
+    </ConnectedRouter>
+  </Provider>,
+  document.getElementById("root")
 );
 
 registerServiceWorker();

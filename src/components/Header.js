@@ -8,10 +8,10 @@ const AppTitle = styled.h4`
 `;
 
 const Header = ({ children, title }) => (
-	<Fragment>
-		<AppTitle>{title}</AppTitle>
-		{children}
-	</Fragment>
+  <Fragment>
+    <AppTitle>{title}</AppTitle>
+    {children}
+  </Fragment>
 );
 
 export default Header;

@@ -35,46 +35,46 @@ const Title = styled.h3`
 
 class StoryDetail extends Component {
 	handleBack = () => {
-		this.props.push("/");
+	  this.props.push("/");
 	};
 	render() {
-		const { title, content } = this.props;
-		return (
-			<Container>
-				<Button
-					shape="circle"
-					icon="arrow-left"
-					style={{ position: "absolute", top: 10, left: 10, zIndex: 2 }}
-					onClick={this.handleBack}
-				/>
-				<Header>
-					<Title>{title}</Title>
-				</Header>
-				<Content>{content}</Content>
-			</Container>
-		);
+	  const { title, content } = this.props;
+	  return (
+	    <Container>
+	      <Button
+	        shape="circle"
+	        icon="arrow-left"
+	        style={{ position: "absolute", top: 10, left: 10, zIndex: 2 }}
+	        onClick={this.handleBack}
+	      />
+	      <Header>
+	        <Title>{title}</Title>
+	      </Header>
+	      <Content>{content}</Content>
+	    </Container>
+	  );
 	}
 }
 
 export default compose(
-	firebaseConnect(() => {
-		return ["stories"];
-	}),
-	connect(
-		state => ({
-			stories: state.firebase.data.stories
-		}),
-		{ push },
-		(stateProps, dispatchProps, ownProps) => {
-			if (stateProps.stories) {
-				return {
-					id: ownProps.match.params.id,
-					...stateProps.stories[ownProps.match.params.id],
-					...dispatchProps
-				};
-			} else {
-				return { ...dispatchProps };
-			}
-		}
-	)
+  firebaseConnect(() => {
+    return ["stories"];
+  }),
+  connect(
+    state => ({
+      stories: state.firebase.data.stories
+    }),
+    { push },
+    (stateProps, dispatchProps, ownProps) => {
+      if (stateProps.stories) {
+        return {
+          id: ownProps.match.params.id,
+          ...stateProps.stories[ownProps.match.params.id],
+          ...dispatchProps
+        };
+      } else {
+        return { ...dispatchProps };
+      }
+    }
+  )
 )(StoryDetail);
