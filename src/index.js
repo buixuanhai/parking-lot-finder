@@ -11,6 +11,7 @@ import firebase from "firebase";
 import { reactReduxFirebase } from "react-redux-firebase";
 import { Route } from "react-router";
 import createHistory from "history/createBrowserHistory";
+import StoryDetail from "./components/Story/Detail";
 import {
 	ConnectedRouter,
 	routerReducer,
@@ -68,6 +69,7 @@ ReactDOM.render(
 		<ConnectedRouter history={history}>
 			<div>
 				<Route exact path="/" component={App} />
+				<Route exact path="/stories/:id" component={StoryDetail} />
 				<Route exact path="/login" component={Login} />
 			</div>
 		</ConnectedRouter>

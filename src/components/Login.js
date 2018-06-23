@@ -63,7 +63,7 @@ class Login extends Component {
 
 export default compose(
 	firebaseConnect(() => {
-		return ["todos"];
+		return ["stories"];
 	}),
 	connect(
 		state => ({

@@ -10,26 +10,33 @@ import { push } from "react-router-redux";
 
 import { firebaseConnect } from "react-redux-firebase";
 import StoryAdd from "./components/Story/Add";
+import StoryList from "./components/Story/List";
+
 import "./App.css";
 
 const TabPane = Tabs.TabPane;
 
 const TabContainer = styled.div`
 	position: absolute;
-	margin-top: -20px;
+	/* margin-top: -20px; */
 	bottom: 0;
 	left: 0;
 	right: 0;
+	top: 50px;
+	display: flex;
+	align-items: flex-end;
+`;
+const AppContainer = styled.div`
+	position: relative;
+	height: 100vh;
+	overflow: hidden;
 `;
 
 const TabContent = styled.div`
-	height: calc(100vh - 150px);
-`;
-
-const LogoutButton = styled.div`
-	display: flex;
-	justify-content: flex-end;
-	margin: 10px;
+	height: calc(100vh - 60px);
+	padding: 10px;
+	width: 100%;
+	overflow: "auto";
 `;
 
 class App extends React.Component {
@@ -42,16 +49,21 @@ class App extends React.Component {
 	};
 
 	render() {
-		const { isEmpty, isLoaded } = this.props.auth;
+		const {
+			stories,
+			auth: { isEmpty, isLoaded }
+		} = this.props;
 
 		return (
-			<div>
+			<AppContainer id="test">
 				{!isEmpty && (
-					<LogoutButton>
-						<Button size="small" onClick={this.onLogout}>
-							Logout
-						</Button>
-					</LogoutButton>
+					<Button
+						size="small"
+						onClick={this.onLogout}
+						style={{ position: "absolute", top: 10, right: 10 }}
+					>
+						Logout
+					</Button>
 				)}
 				<Header title="English story" />
 				<TabContainer>
@@ -62,29 +74,32 @@ class App extends React.Component {
 							width: "100%"
 						}}
 						tabPosition="bottom"
+						style={{ width: "100%" }}
 					>
 						<TabPane tab="Stories" key="1">
-							<TabContent />
+							<TabContent>
+								<StoryList stories={stories} />
+							</TabContent>
 						</TabPane>
 						<TabPane tab="Add" key="2">
-							<TabContent style={{ margin: 10 }}>
+							<TabContent>
 								<StoryAdd isEmpty={isEmpty} isLoaded={isLoaded} />
 							</TabContent>
 						</TabPane>
 					</Tabs>
 				</TabContainer>
-			</div>
+			</AppContainer>
 		);
 	}
 }
 
 export default compose(
 	firebaseConnect(() => {
-		return ["todos"];
+		return ["stories"];
 	}),
 	connect(
 		state => ({
-			todos: state.firebase.data.todos,
+			stories: state.firebase.data.stories,
 			profile: state.firebase.profile,
 			auth: state.firebase.auth
 		}),
