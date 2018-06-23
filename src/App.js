@@ -44,7 +44,7 @@ const TabContent = styled.div`
   height: calc(100vh - 60px);
   padding: 10px;
   width: 100%;
-  overflow: "auto";
+  overflow: auto;
 `;
 
 class App extends React.Component {

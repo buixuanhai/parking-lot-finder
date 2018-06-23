@@ -9,49 +9,49 @@ import StoryItem from "./Item";
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
 const ListContainer = styled.div`
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	/* height: 100%; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100%; */
 `;
 
 class StoryList extends Component {
-	state = { stories: [] };
-	static getDerivedStateFromProps(nextProps) {
-	  if (!nextProps.stories) {
-	    return null;
-	  }
-	  return {
-	    stories: Object.keys(nextProps.stories).map(id => ({
-	      id,
-	      ...nextProps.stories[id]
-	    }))
-	  };
-	}
-	render() {
-	  const { stories } = this.state;
-	  if (!stories) {
-	    return null;
-	  }
+  state = { stories: [] };
+  static getDerivedStateFromProps(nextProps) {
+    if (!nextProps.stories) {
+      return null;
+    }
+    return {
+      stories: Object.keys(nextProps.stories).map(id => ({
+        id,
+        ...nextProps.stories[id]
+      }))
+    };
+  }
+  render() {
+    const { stories } = this.state;
+    if (!stories) {
+      return null;
+    }
 
-	  return (
-	    <ListContainer>
-	      {stories.length ? (
-	        <List
-	          style={{
-	            height: "calc(100vh - 120px)",
-	            overflow: "auto"
-	          }}
-	          itemLayout="horizontal"
-	          dataSource={stories}
-	          renderItem={item => <StoryItem key={item.id} {...item} />}
-	        />
-	      ) : (
-	        <Spin indicator={antIcon} />
-	      )}
-	    </ListContainer>
-	  );
-	}
+    return (
+      <ListContainer>
+        {stories.length ? (
+          <List
+            style={{
+              height: "calc(100vh - 120px)",
+              overflow: "auto"
+            }}
+            itemLayout="horizontal"
+            dataSource={stories}
+            renderItem={item => <StoryItem key={item.id} {...item} />}
+          />
+        ) : (
+          <Spin indicator={antIcon} />
+        )}
+      </ListContainer>
+    );
+  }
 }
 
 export default connect(

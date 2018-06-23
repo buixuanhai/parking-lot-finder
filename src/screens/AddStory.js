@@ -5,11 +5,11 @@ import Input from "antd/lib/input";
 import message from "antd/lib/message";
 import { firebaseConnect } from "react-redux-firebase";
 import { Redirect } from "react-router-dom";
-
+import ImageUploader from "../components/ImageUploader";
 const FormItem = Form.Item;
 
 const initialState = { title: null, content: null };
-class StoryAdd extends Component {
+class AddStory extends Component {
   state = initialState;
 
   handleChange = field => ({ target: { value } }) => {
@@ -39,6 +39,9 @@ class StoryAdd extends Component {
             value={title}
           />
         </FormItem>
+        <FormItem>
+          <ImageUploader />
+        </FormItem>
         <FormItem label="Content">
           <Input.TextArea
             placeholder="Content"
@@ -57,4 +60,4 @@ class StoryAdd extends Component {
   }
 }
 
-export default firebaseConnect()(StoryAdd);
+export default firebaseConnect()(AddStory);

@@ -9,6 +9,7 @@ import { firebaseReducer } from "react-redux-firebase";
 import firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
+import "firebase/storage";
 import { reactReduxFirebase } from "react-redux-firebase";
 import { Route } from "react-router";
 import createHistory from "history/createBrowserHistory";
