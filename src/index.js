@@ -18,7 +18,6 @@ import {
   routerMiddleware
 } from "react-router-redux";
 import Loadable from "react-loadable";
-require("dotenv").config();
 
 const Loading = () => <p>Loading</p>;
 
@@ -27,11 +26,11 @@ const App = Loadable({
   loading: Loading
 });
 const StoryDetail = Loadable({
-  loader: () => import("./components/Story/Detail"),
+  loader: () => import("./screens/StoryDetail"),
   loading: Loading
 });
 const Login = Loadable({
-  loader: () => import("./components/Login"),
+  loader: () => import("./screens/Login"),
   loading: Loading
 });
 
