@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const StoryItem = ({ key, title, content }) => {
+const StoryItem = ({ id, title, content }) => {
 	return (
 		<div>
-			<Link to={`/stories/${key}`}>
+			<Link to={`/stories/${id}`}>
 				<h4>{title}</h4>
 			</Link>
 

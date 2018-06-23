@@ -22,9 +22,9 @@ class StoryList extends Component {
 			return null;
 		}
 		return {
-			stories: Object.keys(nextProps.stories).map(key => ({
-				key,
-				...nextProps.stories[key]
+			stories: Object.keys(nextProps.stories).map(id => ({
+				id,
+				...nextProps.stories[id]
 			}))
 		};
 	}
@@ -44,7 +44,7 @@ class StoryList extends Component {
 						}}
 						itemLayout="horizontal"
 						dataSource={stories}
-						renderItem={item => <StoryItem {...item} />}
+						renderItem={item => <StoryItem key={item.id} {...item} />}
 					/>
 				) : (
 					<Spin indicator={antIcon} />

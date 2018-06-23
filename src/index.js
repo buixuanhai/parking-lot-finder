@@ -6,7 +6,9 @@ import { Provider } from "react-redux";
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
 import ui from "./reducers/ui";
 import { firebaseReducer } from "react-redux-firebase";
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/database";
 import { reactReduxFirebase } from "react-redux-firebase";
 import { Route } from "react-router";
 import createHistory from "history/createBrowserHistory";
@@ -16,6 +18,7 @@ import {
 	routerMiddleware
 } from "react-router-redux";
 import Loadable from "react-loadable";
+require("dotenv").config();
 
 const Loading = () => <p>Loading</p>;
 
@@ -47,12 +50,12 @@ const enhancer = composeEnhancers(
 );
 
 const firebaseConfig = {
-	apiKey: "AIzaSyA7VIpoNxE8qBbizEH17poykWmtC054bBs",
-	authDomain: "test-project-1abfd.firebaseapp.com",
-	databaseURL: "https://test-project-1abfd.firebaseio.com",
-	projectId: "test-project-1abfd",
-	storageBucket: "test-project-1abfd.appspot.com",
-	messagingSenderId: "723013851452"
+	apiKey: process.env.REACT_APP_apiKey,
+	authDomain: process.env.REACT_APP_authDomain,
+	databaseURL: process.env.REACT_APP_databaseURL,
+	projectId: process.env.REACT_APP_projectId,
+	storageBucket: process.env.REACT_APP_storageBucket,
+	messagingSenderId: process.env.REACT_APP_messagingSenderId
 };
 
 firebase.initializeApp(firebaseConfig);
