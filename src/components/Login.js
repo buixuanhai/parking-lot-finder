@@ -1,5 +1,7 @@
 import React, { Component } from "react";
-import { Form, Input, Button } from "antd";
+import Button from "antd/lib/button";
+import Form from "antd/lib/form";
+import Input from "antd/lib/input";
 import { firebaseConnect } from "react-redux-firebase";
 import styled from "styled-components";
 import { connect } from "react-redux";

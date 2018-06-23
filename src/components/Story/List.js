@@ -1,8 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { push } from "react-router-redux";
-import { List } from "antd";
-import { Link } from "react-router-dom";
+import Icon from "antd/lib/icon";
+import Spin from "antd/lib/spin";
+import List from "antd/lib/list";
+import styled from "styled-components";
+import StoryItem from "./Item";
+const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
+
+const ListContainer = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	/* height: 100%; */
+`;
 
 class StoryList extends Component {
 	state = { stories: [] };
@@ -24,22 +35,21 @@ class StoryList extends Component {
 		}
 
 		return (
-			<List
-				style={{
-					height: "calc(100vh - 120px)",
-					overflow: "auto"
-				}}
-				itemLayout="horizontal"
-				dataSource={stories}
-				renderItem={item => (
-					<List.Item>
-						<List.Item.Meta
-							title={<Link to={`/stories/${item.key}`}>{item.title}</Link>}
-							description={`${item.content.substring(0, 100)}...`}
-						/>
-					</List.Item>
+			<ListContainer>
+				{stories.length ? (
+					<List
+						style={{
+							height: "calc(100vh - 120px)",
+							overflow: "auto"
+						}}
+						itemLayout="horizontal"
+						dataSource={stories}
+						renderItem={item => <StoryItem {...item} />}
+					/>
+				) : (
+					<Spin indicator={antIcon} />
 				)}
-			/>
+			</ListContainer>
 		);
 	}
 }

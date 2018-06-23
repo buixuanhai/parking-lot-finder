@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
 import registerServiceWorker from "./registerServiceWorker";
 import { Provider } from "react-redux";
 import { createStore, combineReducers, applyMiddleware, compose } from "redux";
@@ -11,13 +10,27 @@ import firebase from "firebase";
 import { reactReduxFirebase } from "react-redux-firebase";
 import { Route } from "react-router";
 import createHistory from "history/createBrowserHistory";
-import StoryDetail from "./components/Story/Detail";
 import {
 	ConnectedRouter,
 	routerReducer,
 	routerMiddleware
 } from "react-router-redux";
-import Login from "./components/Login";
+import Loadable from "react-loadable";
+
+const Loading = () => <p>Loading</p>;
+
+const App = Loadable({
+	loader: () => import("./App"),
+	loading: Loading
+});
+const StoryDetail = Loadable({
+	loader: () => import("./components/Story/Detail"),
+	loading: Loading
+});
+const Login = Loadable({
+	loader: () => import("./components/Login"),
+	loading: Loading
+});
 
 export const history = createHistory();
 const historyMiddleware = routerMiddleware(history);

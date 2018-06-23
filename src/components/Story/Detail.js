@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import styled from "styled-components";
 import { compose } from "redux";
 import { firebaseConnect } from "react-redux-firebase";
-import { Button } from "antd";
+import Button from "antd/lib/button";
 import { push } from "react-router-redux";
 
 const Container = styled.div`

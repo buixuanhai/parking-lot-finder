@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import Header from "./components/Header";
 import Tabs from "antd/lib/tabs";
-import { Button } from "antd";
+import Button from "antd/lib/button";
 
 import { connect } from "react-redux";
 import { compose } from "redux";
@@ -11,6 +11,7 @@ import { push } from "react-router-redux";
 import { firebaseConnect } from "react-redux-firebase";
 import StoryAdd from "./components/Story/Add";
 import StoryList from "./components/Story/List";
+import message from "antd/lib/message";
 
 import "./App.css";
 
@@ -45,7 +46,7 @@ class App extends React.Component {
 	};
 
 	onLogout = () => {
-		this.props.firebase.logout();
+		this.props.firebase.logout().then(() => message.success("Logged out"));
 	};
 
 	render() {
@@ -60,7 +61,7 @@ class App extends React.Component {
 					<Button
 						size="small"
 						onClick={this.onLogout}
-						style={{ position: "absolute", top: 10, right: 10 }}
+						style={{ position: "absolute", top: 10, right: 10, zIndex: 100 }}
 					>
 						Logout
 					</Button>
