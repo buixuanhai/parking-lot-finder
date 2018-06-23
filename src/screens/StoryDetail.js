@@ -79,7 +79,7 @@ export default compose(
         return {
           id,
           ...story,
-          imageURL: story.imageId.downloadURL,
+          imageURL: story.imageId ? story.imageId.downloadURL : null,
           ...dispatchProps
         };
       } else {
