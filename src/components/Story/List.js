@@ -6,6 +6,8 @@ import Spin from "antd/lib/spin";
 import List from "antd/lib/list";
 import styled from "styled-components";
 import StoryItem from "./Item";
+import { Link } from "react-router-dom";
+
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
 const ListContainer = styled.div`
@@ -44,7 +46,14 @@ class StoryList extends Component {
             }}
             itemLayout="horizontal"
             dataSource={stories}
-            renderItem={item => <StoryItem key={item.id} {...item} />}
+            renderItem={item => (
+              <Link
+                to={`/stories/${item.id}`}
+                style={{ textDecoration: "none", color: "black" }}
+              >
+                <StoryItem key={item.id} {...item} />
+              </Link>
+            )}
           />
         ) : (
           <Spin indicator={antIcon} />

@@ -2,19 +2,19 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { compose } from "redux";
-import { firebaseConnect } from "react-redux-firebase";
+import { firebaseConnect, populate } from "react-redux-firebase";
 import Button from "antd/lib/button";
 import { push } from "react-router-redux";
 
 const Container = styled.div`
-	height: 100vh;
-	overflow: auto;
+  height: 100vh;
+  overflow: auto;
 `;
 
 const Content = styled.p`
-	padding: 20px;
-	padding-top: 60px;
-	white-space: pre-line;
+  padding: 20px;
+  padding-top: 60px;
+  white-space: pre-line;
 `;
 
 const Header = styled.div`
@@ -30,46 +30,56 @@ const Header = styled.div`
 `;
 
 const Title = styled.h3`
-	text-align: center;
+  text-align: center;
+`;
+
+const Image = styled.img`
+  width: 100%;
 `;
 
 class StoryDetail extends Component {
-	handleBack = () => {
-	  this.props.push("/");
-	};
-	render() {
-	  const { title, content } = this.props;
-	  return (
-	    <Container>
-	      <Button
-	        shape="circle"
-	        icon="arrow-left"
-	        style={{ position: "absolute", top: 10, left: 10, zIndex: 2 }}
-	        onClick={this.handleBack}
-	      />
-	      <Header>
-	        <Title>{title}</Title>
-	      </Header>
-	      <Content>{content}</Content>
-	    </Container>
-	  );
-	}
+  handleBack = () => {
+    this.props.push("/");
+  };
+  render() {
+    const { title, content, imageURL } = this.props;
+    return (
+      <Container>
+        {imageURL && <Image src={imageURL} />}
+        <Button
+          shape="circle"
+          icon="arrow-left"
+          style={{ position: "absolute", top: 10, left: 10, zIndex: 2 }}
+          onClick={this.handleBack}
+        />
+        <Header>
+          <Title>{title}</Title>
+        </Header>
+        <Content>{content}</Content>
+      </Container>
+    );
+  }
 }
 
+const populates = [{ child: "imageId", root: "uploadedFiles" }];
+
 export default compose(
-  firebaseConnect(() => {
-    return ["stories"];
-  }),
+  firebaseConnect([{ path: "stories", populates }]),
   connect(
     state => ({
-      stories: state.firebase.data.stories
+      stories: populate(state.firebase, "stories", populates),
+      uploadedFiles: state.firebase.data.uploadedFiles
     }),
     { push },
     (stateProps, dispatchProps, ownProps) => {
-      if (stateProps.stories) {
+      const { stories } = stateProps;
+      if (stories) {
+        const id = ownProps.match.params.id;
+        const story = stories[id];
         return {
-          id: ownProps.match.params.id,
-          ...stateProps.stories[ownProps.match.params.id],
+          id,
+          ...story,
+          imageURL: story.imageId.downloadURL,
           ...dispatchProps
         };
       } else {

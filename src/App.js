@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import { compose } from "redux";
 import { push } from "react-router-redux";
 
-import { firebaseConnect } from "react-redux-firebase";
+import { firebaseConnect, populate } from "react-redux-firebase";
 import StoryList from "./components/Story/List";
 import message from "antd/lib/message";
 import Loadable from "react-loadable";
@@ -101,13 +101,12 @@ class App extends React.Component {
   }
 }
 
+const populates = [{ child: "imageId", root: "uploadedFiles" }];
 export default compose(
-  firebaseConnect(() => {
-    return ["stories"];
-  }),
+  firebaseConnect([{ path: "stories", populates }]),
   connect(
     state => ({
-      stories: state.firebase.data.stories,
+      stories: populate(state.firebase, "stories", populates),
       profile: state.firebase.profile,
       auth: state.firebase.auth
     }),

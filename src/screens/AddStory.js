@@ -8,13 +8,15 @@ import { Redirect } from "react-router-dom";
 import ImageUploader from "../components/ImageUploader";
 const FormItem = Form.Item;
 
-const initialState = { title: null, content: null };
+const initialState = { title: null, content: null, imageId: null };
 class AddStory extends Component {
   state = initialState;
 
   handleChange = field => ({ target: { value } }) => {
     this.setState({ [field]: value });
   };
+
+  handleUploadedImage = imageId => this.setState({ imageId });
 
   onSubmit = e => {
     e.preventDefault();
@@ -40,7 +42,7 @@ class AddStory extends Component {
           />
         </FormItem>
         <FormItem>
-          <ImageUploader />
+          <ImageUploader handleUploadedImage={this.handleUploadedImage} />
         </FormItem>
         <FormItem label="Content">
           <Input.TextArea
