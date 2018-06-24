@@ -24,10 +24,12 @@ class StoryList extends Component {
       return null;
     }
     return {
-      stories: Object.keys(nextProps.stories).map(id => ({
-        id,
-        ...nextProps.stories[id]
-      }))
+      stories: Object.keys(nextProps.stories)
+        .map(id => ({
+          id,
+          ...nextProps.stories[id]
+        }))
+        .sort((a, b) => a.order > b.order)
     };
   }
   render() {

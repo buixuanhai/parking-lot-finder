@@ -5,6 +5,8 @@ import Input from "antd/lib/input";
 import message from "antd/lib/message";
 import { firebaseConnect } from "react-redux-firebase";
 import { Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+import { compose } from "redux";
 import ImageUploader from "../components/ImageUploader";
 const FormItem = Form.Item;
 
@@ -20,10 +22,16 @@ class AddStory extends Component {
 
   onSubmit = e => {
     e.preventDefault();
-    this.props.firebase.push("stories", this.state).then(() => {
-      message.success("Story is created successfully");
-      this.setState(initialState);
-    });
+    this.props.firebase
+      .push("stories", {
+        ...this.state,
+        createdDateTime: Date.now(),
+        order: this.props.lastItemOrder - 1
+      })
+      .then(() => {
+        message.success("Story is created successfully");
+        this.setState(initialState);
+      });
   };
 
   render() {
@@ -62,4 +70,15 @@ class AddStory extends Component {
   }
 }
 
-export default firebaseConnect()(AddStory);
+export default compose(
+  firebaseConnect(),
+  connect(state => {
+    return {
+      lastItemOrder: state.firebase.data.stories
+        ? Math.min(
+          ...Object.values(state.firebase.data.stories).map(v => v.order)
+        )
+        : null
+    };
+  })
+)(AddStory);

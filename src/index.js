@@ -19,8 +19,7 @@ import {
   routerMiddleware
 } from "react-router-redux";
 import Loadable from "react-loadable";
-
-const Loading = () => <p>Loading</p>;
+import Loading from "./components/Loading";
 
 const App = Loadable({
   loader: () => import("./App"),

@@ -56,6 +56,20 @@ class App extends React.Component {
     this.props.firebase.logout().then(() => message.success("Logged out"));
   };
 
+  // updated = false;
+  // initialOrder = 999999999;
+
+  // componentDidUpdate() {
+  //   if (this.props.stories && !this.updated) {
+  //     Object.keys(this.props.stories).forEach(key => {
+  //       this.props.firebase.update(`stories/${key}`, {
+  //         order: this.initialOrder--
+  //       });
+  //     });
+  //     this.updated = true;
+  //   }
+  // }
+
   render() {
     const {
       stories,
@@ -103,7 +117,13 @@ class App extends React.Component {
 
 const populates = [{ child: "imageId", root: "uploadedFiles" }];
 export default compose(
-  firebaseConnect([{ path: "stories", populates }]),
+  firebaseConnect([
+    {
+      path: "stories",
+      populates,
+      queryParams: ["limitToFirst=5", "orderByChild=order"]
+    }
+  ]),
   connect(
     state => ({
       stories: populate(state.firebase, "stories", populates),
