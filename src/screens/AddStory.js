@@ -22,17 +22,18 @@ class AddStory extends Component {
 
   onSubmit = e => {
     e.preventDefault();
+    const storyCount = this.props.counts.stories;
     this.props.firebase
       .push("stories", {
         ...this.state,
         createdDateTime: Date.now(),
-        order: this.props.lastItemOrder - 1
+        order: 1000000000 - storyCount - 1
       })
       .then(() => {
         message.success("Story is created successfully");
         this.setState(initialState);
         this.props.firebase.update("counts", {
-          stories: this.props.counts.stories + 1
+          stories: storyCount + 1
         });
       });
   };
@@ -75,14 +76,5 @@ class AddStory extends Component {
 
 export default compose(
   firebaseConnect([{ path: "counts" }]),
-  connect(state => {
-    return {
-      lastItemOrder: state.firebase.data.stories
-        ? Math.min(
-          ...Object.values(state.firebase.data.stories).map(v => v.order)
-        )
-        : null,
-      counts: state.firebase.data.counts
-    };
-  })
+  connect(state => ({ counts: state.firebase.data.counts }))
 )(AddStory);

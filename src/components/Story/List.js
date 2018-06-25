@@ -5,6 +5,13 @@ import styled from "styled-components";
 import StoryItem from "./Item";
 import { Link } from "react-router-dom";
 import Infinite from "react-infinite";
+import Divider from "antd/lib/divider";
+import Loading from "../Loading";
+import { connect } from "react-redux";
+import { compose } from "redux";
+import { push } from "react-router-redux";
+
+import { firebaseConnect, populate } from "react-redux-firebase";
 
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
@@ -21,17 +28,19 @@ class StoryList extends Component {
     if (!nextProps.stories) {
       return null;
     }
+
+    const stories = Object.keys(nextProps.stories)
+      .map(id => ({
+        id,
+        ...nextProps.stories[id]
+      }))
+      .sort((a, b) => a.order > b.order);
+
     return {
-      stories: Object.keys(nextProps.stories)
-        .map(id => ({
-          id,
-          ...nextProps.stories[id]
-        }))
-        .sort((a, b) => a.order > b.order)
+      stories
     };
   }
 
-  handleInfiniteLoad = () => console.log("loading");
   render() {
     const { stories } = this.state;
     if (!stories) {
@@ -45,16 +54,20 @@ class StoryList extends Component {
               containerHeight={window.innerHeight - 120}
               infiniteLoadBeginEdgeOffset={200}
               onInfiniteLoad={this.props.loadMoreStories}
-              // loadingSpinnerDelegate={this.elementInfiniteLoad()}
-              // isInfiniteLoading={this.state.isInfiniteLoading}
             >
-              {stories.map(item => (
+              {stories.map((item, index) => (
                 <Link
                   key={item.id}
                   to={`/stories/${item.id}`}
-                  style={{ textDecoration: "none", color: "black" }}
+                  style={{
+                    textDecoration: "none",
+                    color: "black",
+                    display: "block",
+                    width: "100vw"
+                  }}
                 >
-                  <StoryItem {...item} />
+                  <StoryItem {...item} index={index} />
+                  <Divider />
                 </Link>
               ))}
             </Infinite>
@@ -67,4 +80,26 @@ class StoryList extends Component {
   }
 }
 
-export default StoryList;
+const populates = [{ child: "imageId", root: "uploadedFiles" }];
+
+export default compose(
+  firebaseConnect(props => [
+    {
+      path: "stories",
+      populates: populates,
+      queryParams: [
+        `limitToFirst=${props.itemPerPage * props.page}`,
+        "orderByChild=order"
+      ]
+    },
+    {
+      path: "counts"
+    }
+  ]),
+  connect(
+    state => ({
+      stories: populate(state.firebase, "stories", populates)
+    }),
+    { push }
+  )
+)(StoryList);

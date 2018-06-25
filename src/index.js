@@ -21,10 +21,10 @@ import {
 import Loadable from "react-loadable";
 import Loading from "./components/Loading";
 
-if (process.env.NODE_ENV !== "production") {
-  const { whyDidYouUpdate } = require("why-did-you-update");
-  whyDidYouUpdate(React);
-}
+// if (process.env.NODE_ENV !== "production") {
+//   const { whyDidYouUpdate } = require("why-did-you-update");
+//   whyDidYouUpdate(React);
+// }
 
 const App = Loadable({
   loader: () => import("./App"),
