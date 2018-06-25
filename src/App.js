@@ -44,6 +44,8 @@ const TabContent = styled.div`
   overflow: auto;
 `;
 
+const populates = [{ child: "imageId", root: "uploadedFiles" }];
+
 class App extends React.Component {
   state = {
     tabKey: "1",
@@ -51,13 +53,12 @@ class App extends React.Component {
     itemPerPage: 5
   };
 
-  populates = [{ child: "imageId", root: "uploadedFiles" }];
   enhancedCreator = (page, itemPerPage) =>
     compose(
       firebaseConnect([
         {
           path: "stories",
-          populates: this.populates,
+          populates: populates,
           queryParams: [
             // `startAt=${itemPerPage * (page - 1)}`,
             `limitToFirst=${itemPerPage * page}`,
@@ -67,7 +68,7 @@ class App extends React.Component {
       ]),
       connect(
         state => ({
-          stories: populate(state.firebase, "stories", this.populates)
+          stories: populate(state.firebase, "stories", populates)
         }),
         { push }
       )
@@ -88,20 +89,24 @@ class App extends React.Component {
       this.props.counts.stories > this.state.page * this.state.itemPerPage
     ) {
       console.log("loading more");
-      this.EnhancedStoryList = this.enhancedCreator(
-        this.state.page + 1,
-        this.state.itemPerPage
-      )(StoryList);
+      // this.EnhancedStoryList = this.enhancedCreator(
+      //   this.state.page + 1,
+      //   this.state.itemPerPage
+      // )(StoryList);
       this.setState({ page: this.state.page + 1 });
     }
   };
 
   render() {
+    console.log("rerender");
     const {
       auth: { isEmpty, isLoaded }
     } = this.props;
 
-    let EnhancedStoryList = this.EnhancedStoryList;
+    let EnhancedStoryList = this.enhancedCreator(
+      this.state.page,
+      this.state.itemPerPage
+    )(StoryList);
 
     return (
       <AppContainer id="test">

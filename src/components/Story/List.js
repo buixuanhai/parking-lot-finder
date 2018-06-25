@@ -5,6 +5,7 @@ import styled from "styled-components";
 import StoryItem from "./Item";
 import { Link } from "react-router-dom";
 import Infinite from "react-infinite";
+
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
 const ListContainer = styled.div`
@@ -12,7 +13,6 @@ const ListContainer = styled.div`
   justify-content: center;
   align-items: center;
   height: calc(100vh - 120px);
-  /* height: 100%; */
 `;
 
 class StoryList extends Component {
