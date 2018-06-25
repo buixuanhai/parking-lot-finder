@@ -31,6 +31,9 @@ class AddStory extends Component {
       .then(() => {
         message.success("Story is created successfully");
         this.setState(initialState);
+        this.props.firebase.update("counts", {
+          stories: this.props.counts.stories + 1
+        });
       });
   };
 
@@ -55,7 +58,7 @@ class AddStory extends Component {
         <FormItem label="Content">
           <Input.TextArea
             placeholder="Content"
-            autosize={{ minRows: 14, maxRows: 14 }}
+            autosize={{ minRows: 10, maxRows: 10 }}
             onChange={this.handleChange("content")}
             value={content}
           />
@@ -71,14 +74,15 @@ class AddStory extends Component {
 }
 
 export default compose(
-  firebaseConnect(),
+  firebaseConnect([{ path: "counts" }]),
   connect(state => {
     return {
       lastItemOrder: state.firebase.data.stories
         ? Math.min(
           ...Object.values(state.firebase.data.stories).map(v => v.order)
         )
-        : null
+        : null,
+      counts: state.firebase.data.counts
     };
   })
 )(AddStory);

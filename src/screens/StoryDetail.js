@@ -5,6 +5,7 @@ import { compose } from "redux";
 import { firebaseConnect, populate } from "react-redux-firebase";
 import { Redirect } from "react-router-dom";
 import Button from "antd/lib/button";
+import Popconfirm from "antd/lib/popconfirm";
 import { push } from "react-router-redux";
 
 const Container = styled.div`
@@ -27,6 +28,7 @@ const Header = styled.div`
 	display: flex;
 	padding: 12px;
 	padding-left: 52px;
+	padding-right: 52px;
 	justify-content: center;
 `;
 
@@ -42,6 +44,16 @@ class StoryDetail extends Component {
   handleBack = () => {
     this.props.push("/");
   };
+
+  handleDelete = () => {
+    this.props.firebase.remove(`stories/${this.props.id}`).then(() => {
+      this.props.push("/");
+      this.props.firebase.update("counts", {
+        stories: this.props.counts.stories - 1
+      });
+    });
+  };
+
   render() {
     const { title, content, imageURL } = this.props;
     if (this.props.id) {
@@ -56,6 +68,26 @@ class StoryDetail extends Component {
           />
           <Header>
             <Title>{title}</Title>
+
+            <Popconfirm
+              title="Are you sure delete this story?"
+              onConfirm={this.handleDelete}
+              okText="Yes"
+              placement="leftTop"
+              cancelText="No"
+            >
+              <Button
+                shape="circle"
+                icon="delete"
+                style={{
+                  position: "absolute",
+                  top: 10,
+                  right: 10,
+                  zIndex: 2,
+                  color: "red"
+                }}
+              />
+            </Popconfirm>
           </Header>
           <Content>{content}</Content>
         </Container>
@@ -69,11 +101,11 @@ class StoryDetail extends Component {
 const populates = [{ child: "imageId", root: "uploadedFiles" }];
 
 export default compose(
-  firebaseConnect([{ path: "stories", populates }]),
+  firebaseConnect([{ path: "stories", populates }, { path: "counts" }]),
   connect(
     state => ({
-      stories: populate(state.firebase, "stories", populates),
-      uploadedFiles: state.firebase.data.uploadedFiles
+      ...state.firebase.data,
+      stories: populate(state.firebase, "stories", populates)
     }),
     { push },
     (stateProps, dispatchProps, ownProps) => {
@@ -83,10 +115,12 @@ export default compose(
         const story = stories[id];
         if (story) {
           return {
-            id,
+            ...dispatchProps,
+            ...stateProps,
+            ...ownProps,
             ...story,
-            imageURL: story.imageId ? story.imageId.downloadURL : null,
-            ...dispatchProps
+            id,
+            imageURL: story.imageId ? story.imageId.downloadURL : null
           };
         } else {
           return { ...dispatchProps };

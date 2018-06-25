@@ -12,10 +12,8 @@ import { firebaseConnect, populate } from "react-redux-firebase";
 import StoryList from "./components/Story/List";
 import message from "antd/lib/message";
 import Loadable from "react-loadable";
-
+import Loading from "./components/Loading";
 import "./App.css";
-
-const Loading = () => <p>Loading</p>;
 
 const AddStory = Loadable({
   loader: () => import("./screens/AddStory"),
@@ -26,7 +24,6 @@ const TabPane = Tabs.TabPane;
 
 const TabContainer = styled.div`
   position: absolute;
-  /* margin-top: -20px; */
   bottom: 0;
   left: 0;
   right: 0;
@@ -49,32 +46,62 @@ const TabContent = styled.div`
 
 class App extends React.Component {
   state = {
-    tabKey: "1"
+    tabKey: "1",
+    page: 1,
+    itemPerPage: 5
   };
+
+  populates = [{ child: "imageId", root: "uploadedFiles" }];
+  enhancedCreator = (page, itemPerPage) =>
+    compose(
+      firebaseConnect([
+        {
+          path: "stories",
+          populates: this.populates,
+          queryParams: [
+            // `startAt=${itemPerPage * (page - 1)}`,
+            `limitToFirst=${itemPerPage * page}`,
+            "orderByChild=order"
+          ]
+        }
+      ]),
+      connect(
+        state => ({
+          stories: populate(state.firebase, "stories", this.populates)
+        }),
+        { push }
+      )
+    );
+
+  EnhancedStoryList = this.enhancedCreator(
+    this.state.page,
+    this.state.itemPerPage
+  )(StoryList);
 
   onLogout = () => {
     this.props.firebase.logout().then(() => message.success("Logged out"));
   };
 
-  // updated = false;
-  // initialOrder = 999999999;
-
-  // componentDidUpdate() {
-  //   if (this.props.stories && !this.updated) {
-  //     Object.keys(this.props.stories).forEach(key => {
-  //       this.props.firebase.update(`stories/${key}`, {
-  //         order: this.initialOrder--
-  //       });
-  //     });
-  //     this.updated = true;
-  //   }
-  // }
+  loadMoreStories = () => {
+    if (
+      this.props.counts &&
+      this.props.counts.stories > this.state.page * this.state.itemPerPage
+    ) {
+      console.log("loading more");
+      this.EnhancedStoryList = this.enhancedCreator(
+        this.state.page + 1,
+        this.state.itemPerPage
+      )(StoryList);
+      this.setState({ page: this.state.page + 1 });
+    }
+  };
 
   render() {
     const {
-      stories,
       auth: { isEmpty, isLoaded }
     } = this.props;
+
+    let EnhancedStoryList = this.EnhancedStoryList;
 
     return (
       <AppContainer id="test">
@@ -100,7 +127,7 @@ class App extends React.Component {
           >
             <TabPane tab="Stories" key="1">
               <TabContent>
-                <StoryList stories={stories} />
+                <EnhancedStoryList loadMoreStories={this.loadMoreStories} />
               </TabContent>
             </TabPane>
             <TabPane tab="Add" key="2">
@@ -115,21 +142,15 @@ class App extends React.Component {
   }
 }
 
-const populates = [{ child: "imageId", root: "uploadedFiles" }];
 export default compose(
   firebaseConnect([
     {
-      path: "stories",
-      populates,
-      queryParams: ["limitToFirst=5", "orderByChild=order"]
+      path: "counts"
     }
   ]),
-  connect(
-    state => ({
-      stories: populate(state.firebase, "stories", populates),
-      profile: state.firebase.profile,
-      auth: state.firebase.auth
-    }),
-    { push }
-  )
+  connect(state => ({
+    profile: state.firebase.profile,
+    counts: state.firebase.data.counts,
+    auth: state.firebase.auth
+  }))
 )(App);
