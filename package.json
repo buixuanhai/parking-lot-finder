@@ -4,10 +4,13 @@
   "private": true,
   "dependencies": {
     "antd": "^3.6.3",
+    "antd-mobile": "^2.2.1",
     "babel-eslint": "8",
+    "babel-plugin-import": "^1.8.0",
     "firebase": "^5.1.0",
     "immer": "^1.3.1",
     "react": "^16.4.0",
+    "react-app-rewired": "^1.5.2",
     "react-dom": "^16.4.0",
     "react-dropzone": "^4.2.11",
     "react-infinite": "^0.13.0",
@@ -26,10 +29,10 @@
     "why-did-you-update": "^0.1.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --env=jsdom",
+    "eject": "react-app-rewired eject",
     "deploy": "npm run build && firebase deploy"
   },
   "devDependencies": {

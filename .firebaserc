@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "test-project-1abfd"
+    "default": "test-project-1abfd",
+    "dev": "api-project-33183371802"
   }
 }
