@@ -1,55 +1,36 @@
 import React from "react";
-import styled from "styled-components";
-import Header from "./components/Header";
-import Tabs from "antd/lib/tabs";
-import Button from "antd/lib/button";
-
+import { Drawer, List, NavBar } from "antd-mobile";
+import Icon from "antd/lib/icon";
 import { connect } from "react-redux";
 import { compose } from "redux";
+import { Modal } from "antd-mobile";
 
-import { firebaseConnect } from "react-redux-firebase";
 import StoryList from "./components/Story/List";
 import message from "antd/lib/message";
 import Loadable from "react-loadable";
 import Loading from "./components/Loading";
 import "./App.css";
+import { TabBar } from "antd-mobile";
+import { firebaseConnect, isLoaded, isEmpty } from "react-redux-firebase";
+
+const prompt = Modal.prompt;
 
 const AddStory = Loadable({
   loader: () => import("./screens/AddStory"),
   loading: Loading
 });
 
-const TabPane = Tabs.TabPane;
-
-const TabContainer = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  top: 50px;
-  display: flex;
-  align-items: flex-end;
-`;
-const AppContainer = styled.div`
-  position: relative;
-  height: 100vh;
-  overflow: hidden;
-`;
-
-const TabContent = styled.div`
-  height: calc(100vh - 60px);
-  padding: 10px;
-  width: 100%;
-  overflow: auto;
-`;
-
 class App extends React.Component {
   state = {
     tabKey: "1",
     page: 1,
+    open: false,
     itemPerPage: 5
   };
 
+  onOpenChange = () => {
+    this.setState({ open: !this.state.open });
+  };
   onLogout = () => {
     this.props.firebase.logout().then(() => message.success("Logged out"));
   };
@@ -76,53 +57,118 @@ class App extends React.Component {
   //     });
   //   }
   // }
-
-  render() {
-    const {
-      auth: { isEmpty, isLoaded }
-    } = this.props;
-
-    const { page, itemPerPage } = this.state;
+  renderTabs = () => {
+    const { page, itemPerPage, selectedTab } = this.state;
 
     return (
-      <AppContainer id="test">
-        {!isEmpty && (
-          <Button
-            size="small"
-            onClick={this.onLogout}
-            style={{ position: "absolute", top: 10, right: 10, zIndex: 100 }}
-          >
-            Logout
-          </Button>
+      <TabBar
+        unselectedTintColor="#949494"
+        tintColor="#33A3F4"
+        barTintColor="white"
+      >
+        <TabBar.Item
+          key="List"
+          icon={<Icon type="bars" />}
+          selectedIcon={<Icon type="bars" />}
+          onPress={() => {
+            this.setState({
+              selectedTab: "storyList"
+            });
+          }}
+          selected={selectedTab === "storyList"}
+        >
+          <StoryList
+            loadMoreStories={this.loadMoreStories}
+            page={page}
+            itemPerPage={itemPerPage}
+          />
+        </TabBar.Item>
+        <TabBar.Item
+          key="Item"
+          selected={selectedTab === "storyItem"}
+          icon={<Icon type="smile-o" />}
+          selectedIcon={<Icon type="smile-o" />}
+          onPress={() => {
+            this.setState({
+              selectedTab: "storyItem"
+            });
+          }}
+        >
+          {/* <AddStory isEmpty={isEmpty} isLoaded={isLoaded} /> */}
+          <p>add story</p>
+        </TabBar.Item>
+      </TabBar>
+    );
+  };
+
+  render() {
+    const { auth, profile } = this.props;
+
+    const sidebar = (
+      <List>
+        {!auth.isEmpty && (
+          <List.Item thumb={<Icon type="user" />} multipleLine>
+            Welcome
+          </List.Item>
         )}
-        <Header title="English story" />
-        <TabContainer>
-          <Tabs
-            defaultActiveKey={this.state.tabKey}
-            onChange={tabKey => this.setState({ tabKey })}
-            tabBarStyle={{
-              width: "100%"
-            }}
-            tabPosition="bottom"
-            style={{ width: "100%" }}
+        <List.Item thumb={<Icon type="file-add" />} multipleLine>
+          Add story
+        </List.Item>
+        <List.Item thumb={<Icon type="bars" />} multipleLine>
+          Collections
+        </List.Item>
+        <List.Item thumb={<Icon type="login" />} multipleLine>
+          {!isLoaded(auth) ? (
+            <span>Loading...</span>
+          ) : isEmpty(auth) ? (
+            <span
+              onClick={() => {
+                prompt(
+                  "Login",
+                  "Please input login information",
+                  [
+                    { text: "Cancel" },
+                    {
+                      text: "Submit",
+                      onPress: (email, password) =>
+                        this.props.firebase.login({ email, password })
+                    }
+                  ],
+                  "login-password",
+                  null,
+                  ["Email", "Password"],
+                  "ios"
+                );
+              }}
+            >
+              Login
+            </span>
+          ) : (
+            <span onClick={this.onLogout}>Logout</span>
+          )}
+        </List.Item>
+      </List>
+    );
+
+    return (
+      <div style={{ height: "100vh", overflow: "hidden" }}>
+        <Drawer
+          className="my-drawer"
+          style={{ minHeight: document.documentElement.clientHeight }}
+          enableDragHandle
+          sidebar={sidebar}
+          open={this.state.open}
+          onOpenChange={this.onOpenChange}
+        >
+          <NavBar
+            icon={<Icon type="ellipsis" />}
+            onLeftClick={this.onOpenChange}
           >
-            <TabPane tab="Stories" key="1">
-              <TabContent>
-                <StoryList
-                  loadMoreStories={this.loadMoreStories}
-                  page={page}
-                  itemPerPage={itemPerPage}
-                />
-              </TabContent>
-            </TabPane>
-            <TabPane tab="Add" key="2">
-              <TabContent>
-                <AddStory isEmpty={isEmpty} isLoaded={isLoaded} />
-              </TabContent>
-            </TabPane>
-          </Tabs>
-        </TabContainer>
-      </AppContainer>
+            English Stories
+          </NavBar>
+          {this.renderTabs()}
+        </Drawer>
+      </div>
     );
   }
 }
@@ -137,6 +183,7 @@ export default compose(
   connect(state => ({
     counts: state.firebase.data.counts,
     stories: state.firebase.data.stories,
+    profile: state.firebase.profile,
     auth: state.firebase.auth
   }))
 )(App);

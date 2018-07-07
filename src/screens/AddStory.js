@@ -8,9 +8,15 @@ import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import ImageUploader from "../components/ImageUploader";
+import styled from "styled-components";
 const FormItem = Form.Item;
 
+const FormContainer = styled.div`
+  margin: 10px;
+`;
+
 const initialState = { title: null, content: null, imageId: null };
+
 class AddStory extends Component {
   state = initialState;
 
@@ -45,31 +51,33 @@ class AddStory extends Component {
       return <Redirect to="/login" />;
     }
     return (
-      <Form layout="vertical" onSubmit={this.onSubmit}>
-        <FormItem label="Title">
-          <Input
-            placeholder="Title"
-            onChange={this.handleChange("title")}
-            value={title}
-          />
-        </FormItem>
-        <FormItem>
-          <ImageUploader handleUploadedImage={this.handleUploadedImage} />
-        </FormItem>
-        <FormItem label="Content">
-          <Input.TextArea
-            placeholder="Content"
-            autosize={{ minRows: 10, maxRows: 10 }}
-            onChange={this.handleChange("content")}
-            value={content}
-          />
-        </FormItem>
-        <FormItem>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </FormItem>
-      </Form>
+      <FormContainer>
+        <Form layout="vertical" onSubmit={this.onSubmit}>
+          <FormItem label="Title">
+            <Input
+              placeholder="Title"
+              onChange={this.handleChange("title")}
+              value={title}
+            />
+          </FormItem>
+          <FormItem>
+            <ImageUploader handleUploadedImage={this.handleUploadedImage} />
+          </FormItem>
+          <FormItem label="Content">
+            <Input.TextArea
+              placeholder="Content"
+              autosize={{ minRows: 10, maxRows: 10 }}
+              onChange={this.handleChange("content")}
+              value={content}
+            />
+          </FormItem>
+          <FormItem>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </FormItem>
+        </Form>
+      </FormContainer>
     );
   }
 }

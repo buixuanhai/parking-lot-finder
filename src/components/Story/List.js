@@ -6,7 +6,6 @@ import StoryItem from "./Item";
 import { Link } from "react-router-dom";
 import Infinite from "react-infinite";
 import Divider from "antd/lib/divider";
-import Loading from "../Loading";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import { push } from "react-router-redux";
@@ -16,10 +15,7 @@ import { firebaseConnect, populate } from "react-redux-firebase";
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
 const ListContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: calc(100vh - 120px);
+  padding: 10px; */
 `;
 
 class StoryList extends Component {
@@ -51,7 +47,8 @@ class StoryList extends Component {
           {stories.length ? (
             <Infinite
               elementHeight={69.4}
-              containerHeight={window.innerHeight - 120}
+              // containerHeight={window.innerHeight - 90}
+              useWindowAsScrollContainer
               infiniteLoadBeginEdgeOffset={200}
               onInfiniteLoad={this.props.loadMoreStories}
             >
@@ -62,8 +59,7 @@ class StoryList extends Component {
                   style={{
                     textDecoration: "none",
                     color: "black",
-                    display: "block",
-                    width: "100vw"
+                    display: "block"
                   }}
                 >
                   <StoryItem {...item} index={index} />
