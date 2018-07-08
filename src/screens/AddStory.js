@@ -1,7 +1,4 @@
-import React, { Component } from "react";
-import Button from "antd/lib/button";
-import Form from "antd/lib/form";
-import Input from "antd/lib/input";
+import React, { Component, Fragment } from "react";
 import message from "antd/lib/message";
 import { firebaseConnect } from "react-redux-firebase";
 import { Redirect } from "react-router-dom";
@@ -9,80 +6,123 @@ import { connect } from "react-redux";
 import { compose } from "redux";
 import ImageUploader from "../components/ImageUploader";
 import styled from "styled-components";
-const FormItem = Form.Item;
+import { NavBar } from "antd-mobile";
+import Icon from "antd/lib/icon";
+import { withRouter } from "react-router";
+import { Form as FinalForm, Field } from "react-final-form";
+import { InputItem } from "antd-mobile";
+import { required } from "../utils/validations";
+import { TextareaItem } from "antd-mobile";
 
 const FormContainer = styled.div`
-  margin: 10px;
+  padding: 10px;
+  height: calc(100vh - 45px);
 `;
 
-const initialState = { title: null, content: null, imageId: null };
+const Container = styled.div`
+  height: 100vh;
+  overflow: hidden;
+`;
 
 class AddStory extends Component {
-  state = initialState;
-
-  handleChange = field => ({ target: { value } }) => {
-    this.setState({ [field]: value });
-  };
-
-  handleUploadedImage = imageId => this.setState({ imageId });
-
-  onSubmit = e => {
-    e.preventDefault();
+  onSave = values => {
     const storyCount = this.props.counts.stories;
-    this.props.firebase
+    const { firebase, history } = this.props;
+    firebase
       .push("stories", {
-        ...this.state,
+        ...values,
         createdDateTime: Date.now(),
         order: 1000000000 - storyCount - 1
       })
       .then(() => {
         message.success("Story is created successfully");
-        this.setState(initialState);
-        this.props.firebase.update("counts", {
-          stories: storyCount + 1
-        });
+        firebase
+          .update("counts", {
+            stories: storyCount + 1
+          })
+          .then(() => {
+            history.goBack();
+          });
       });
   };
 
   render() {
-    const { isEmpty, isLoaded } = this.props;
-    const { title, content } = this.state;
+    let submit;
+    const { isEmpty, isLoaded, history } = this.props;
     if (isEmpty && isLoaded) {
-      return <Redirect to="/login" />;
+      return <Redirect to="/" />;
     }
     return (
-      <FormContainer>
-        <Form layout="vertical" onSubmit={this.onSubmit}>
-          <FormItem label="Title">
-            <Input
-              placeholder="Title"
-              onChange={this.handleChange("title")}
-              value={title}
-            />
-          </FormItem>
-          <FormItem>
-            <ImageUploader handleUploadedImage={this.handleUploadedImage} />
-          </FormItem>
-          <FormItem label="Content">
-            <Input.TextArea
-              placeholder="Content"
-              autosize={{ minRows: 10, maxRows: 10 }}
-              onChange={this.handleChange("content")}
-              value={content}
-            />
-          </FormItem>
-          <FormItem>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </FormItem>
-        </Form>
-      </FormContainer>
+      <Container>
+        <NavBar
+          mode="light"
+          icon={<Icon type="left" />}
+          onLeftClick={() => history.goBack()}
+          rightContent={[
+            <span key="1" onClick={event => submit(event)}>
+              Save
+            </span>
+          ]}
+        >
+          Add story
+        </NavBar>
+        <FormContainer>
+          <FinalForm
+            onSubmit={this.onSave}
+            render={({ handleSubmit, form, submitting, pristine, values }) => {
+              submit = handleSubmit;
+              return (
+                <form onSubmit={handleSubmit}>
+                  <div>
+                    <Field name="title" validate={required}>
+                      {({ input, meta }) => (
+                        <Fragment>
+                          <InputItem {...input} clear placeholder="Story title">
+                            Title
+                          </InputItem>
+                          {meta.error &&
+                            meta.touched && <span>{meta.error}</span>}
+                        </Fragment>
+                      )}
+                    </Field>
+                    <Field name="image">
+                      {({ input, meta }) => (
+                        <Fragment>
+                          <ImageUploader {...input} error={true} />
+                          {meta.error &&
+                            meta.touched && <span>{meta.error}</span>}
+                        </Fragment>
+                      )}
+                    </Field>
+                    <Field name="content" validate={required}>
+                      {({ input, meta }) => (
+                        <Fragment>
+                          <TextareaItem
+                            clear
+                            placeholder="Story content"
+                            rows={10}
+                            {...input}
+                          >
+                            Title
+                          </TextareaItem>
+                          {meta.error &&
+                            meta.touched && <span>{meta.error}</span>}
+                        </Fragment>
+                      )}
+                    </Field>
+                  </div>
+                </form>
+              );
+            }}
+          />
+        </FormContainer>
+      </Container>
     );
   }
 }
 
 export default compose(
   firebaseConnect([{ path: "counts" }]),
-  connect(state => ({ counts: state.firebase.data.counts }))
+  connect(state => ({ counts: state.firebase.data.counts })),
+  withRouter
 )(AddStory);

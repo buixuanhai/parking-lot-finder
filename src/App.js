@@ -1,24 +1,17 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Drawer, List, NavBar } from "antd-mobile";
 import Icon from "antd/lib/icon";
 import { connect } from "react-redux";
 import { compose } from "redux";
 import { Modal } from "antd-mobile";
-
+import { push } from "react-router-redux";
 import StoryList from "./components/Story/List";
 import message from "antd/lib/message";
-import Loadable from "react-loadable";
-import Loading from "./components/Loading";
 import "./App.css";
 import { TabBar } from "antd-mobile";
 import { firebaseConnect, isLoaded, isEmpty } from "react-redux-firebase";
 
 const prompt = Modal.prompt;
-
-const AddStory = Loadable({
-  loader: () => import("./screens/AddStory"),
-  loading: Loading
-});
 
 class App extends React.Component {
   state = {
@@ -102,18 +95,20 @@ class App extends React.Component {
   };
 
   render() {
-    const { auth, profile } = this.props;
+    const { auth, push } = this.props;
 
     const sidebar = (
       <List>
         {!auth.isEmpty && (
-          <List.Item thumb={<Icon type="user" />} multipleLine>
-            Welcome
-          </List.Item>
+          <Fragment>
+            <List.Item thumb={<Icon type="user" />} multipleLine>
+              Welcome
+            </List.Item>
+            <List.Item thumb={<Icon type="file-add" />} multipleLine>
+              <span onClick={() => push("/stories/add")}>Add story</span>
+            </List.Item>
+          </Fragment>
         )}
-        <List.Item thumb={<Icon type="file-add" />} multipleLine>
-          Add story
-        </List.Item>
         <List.Item thumb={<Icon type="bars" />} multipleLine>
           Collections
         </List.Item>
@@ -129,7 +124,7 @@ class App extends React.Component {
                   [
                     { text: "Cancel" },
                     {
-                      text: "Submit",
+                      text: "Login",
                       onPress: (email, password) =>
                         this.props.firebase.login({ email, password })
                     }
@@ -180,10 +175,13 @@ export default compose(
     },
     { path: "stories" }
   ]),
-  connect(state => ({
-    counts: state.firebase.data.counts,
-    stories: state.firebase.data.stories,
-    profile: state.firebase.profile,
-    auth: state.firebase.auth
-  }))
+  connect(
+    state => ({
+      counts: state.firebase.data.counts,
+      stories: state.firebase.data.stories,
+      profile: state.firebase.profile,
+      auth: state.firebase.auth
+    }),
+    { push }
+  )
 )(App);

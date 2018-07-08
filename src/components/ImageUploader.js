@@ -6,6 +6,7 @@ import { compose } from "redux";
 import styled from "styled-components";
 import Loading from "../components/Loading";
 import Icon from "antd/lib/icon";
+import { Button } from "antd-mobile";
 
 const Image = styled.img`
   max-width: 200px;
@@ -19,7 +20,7 @@ const dropzoneStyles = (downloadURL, uploading) => ({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  margin: "0 auto"
+  margin: "20px auto"
 });
 
 const ImageContainer = styled.div`
@@ -36,28 +37,36 @@ class ImageUploader extends Component {
 
   onFilesDrop = ([file]) => {
     this.setState({ uploading: true });
-    return this.props.firebase
+    const { firebase, onChange } = this.props;
+    return firebase
       .uploadFile(filesPath, file, filesPath)
       .then(({ key, downloadURL, File: { fullPath } }) => {
-        this.props.firebase.update(`${filesPath}/${key}`, { downloadURL });
-        this.props.handleUploadedImage(key);
+        firebase.update(`${filesPath}/${key}`, { downloadURL });
+        onChange(key);
+        // this.props.handleUploadedImage(key);
         this.setState({ downloadURL, uploading: false, key, fullPath });
       });
   };
 
   onFileDelete = () => {
     const { fullPath, key } = this.state;
-    // deleteFile(storagePath, dbPath)
-    return this.props.firebase
-      .deleteFile(fullPath, `${filesPath}/${key}`)
-      .then(() => this.setState({ downloadURL: null }));
+    const { firebase, onChange } = this.props;
+    return firebase.deleteFile(fullPath, `${filesPath}/${key}`).then(() => {
+      this.setState({ downloadURL: null });
+      onChange();
+    });
   };
 
   renderContent = () => {
     const { downloadURL, uploading } = this.state;
 
     if (uploading) {
-      return <Loading />;
+      return (
+        <div>
+          <Loading />
+          <p>Uploading...</p>
+        </div>
+      );
     }
 
     if (downloadURL) {
@@ -83,21 +92,23 @@ class ImageUploader extends Component {
       );
     }
 
-    return <div>Drag and drop files here or click to select</div>;
+    return (
+      <Button type="primary" inline size="small" style={{ marginRight: "4px" }}>
+        Upload image
+      </Button>
+    );
   };
 
   render() {
     const { downloadURL, uploading } = this.state;
     return (
-      <div>
-        <Dropzone
-          onDrop={this.onFilesDrop}
-          multiple={false}
-          style={dropzoneStyles(downloadURL, uploading)}
-        >
-          {this.renderContent()}
-        </Dropzone>
-      </div>
+      <Dropzone
+        onDrop={this.onFilesDrop}
+        multiple={false}
+        style={dropzoneStyles(downloadURL, uploading)}
+      >
+        {this.renderContent()}
+      </Dropzone>
     );
   }
 }

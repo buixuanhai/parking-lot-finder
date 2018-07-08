@@ -20,6 +20,8 @@ import {
 } from "react-router-redux";
 import Loadable from "react-loadable";
 import Loading from "./components/Loading";
+import AddStory from "./screens/AddStory";
+import { Switch } from "react-router";
 
 // if (process.env.NODE_ENV !== "production") {
 //   const { whyDidYouUpdate } = require("why-did-you-update");
@@ -96,11 +98,12 @@ const store = createStoreWithFirebase(
 ReactDOM.render(
   <Provider store={store}>
     <ConnectedRouter history={history}>
-      <div>
+      <Switch>
         <Route exact path="/" component={App} />
+        <Route exact path="/stories/add" component={AddStory} />
         <Route exact path="/stories/:id" component={StoryDetail} />
         <Route exact path="/login" component={Login} />
-      </div>
+      </Switch>
     </ConnectedRouter>
   </Provider>,
   document.getElementById("root")
