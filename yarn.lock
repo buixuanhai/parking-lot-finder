@@ -3294,6 +3294,10 @@ fill-range@^4.0.0:
     repeat-string "^1.6.1"
     to-regex-range "^2.1.0"
 
+final-form@^4.8.3:
+  version "4.8.3"
+  resolved "https://registry.yarnpkg.com/final-form/-/final-form-4.8.3.tgz#86a03da6cd6459ed8fe3737dbd9dc87ed40c11d7"
+
 finalhandler@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/finalhandler/-/finalhandler-1.1.1.tgz#eebf4ed840079c83f4249038c9d703008301b105"
@@ -7029,6 +7033,13 @@ reduce-function-call@^1.0.1:
   resolved "https://registry.yarnpkg.com/reduce-function-call/-/reduce-function-call-1.0.2.tgz#5a200bf92e0e37751752fe45b0ab330fd4b6be99"
   dependencies:
     balanced-match "^0.4.2"
+
+redux-firestore@^0.5.7:
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/redux-firestore/-/redux-firestore-0.5.7.tgz#12595c61679bfeaa47d1ba0f4bfa87ea915dd80c"
+  dependencies:
+    lodash "^4.17.10"
+    prop-types "^15.6.1"
 
 redux@^4.0.0:
   version "4.0.0"

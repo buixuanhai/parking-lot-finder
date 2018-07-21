@@ -47,7 +47,6 @@ class StoryList extends Component {
           {stories.length ? (
             <Infinite
               elementHeight={69.4}
-              // containerHeight={window.innerHeight - 90}
               useWindowAsScrollContainer
               infiniteLoadBeginEdgeOffset={200}
               onInfiniteLoad={this.props.loadMoreStories}

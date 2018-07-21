@@ -22,6 +22,7 @@ import Loadable from "react-loadable";
 import Loading from "./components/Loading";
 import AddStory from "./screens/AddStory";
 import { Switch } from "react-router";
+import { reduxFirestore, firestoreReducer } from "redux-firestore";
 
 // if (process.env.NODE_ENV !== "production") {
 //   const { whyDidYouUpdate } = require("why-did-you-update");
@@ -82,14 +83,16 @@ const config = {
 };
 
 // Add redux Firebase to compose
-const createStoreWithFirebase = compose(reactReduxFirebase(firebase, config))(
-  createStore
-);
+const createStoreWithFirebase = compose(
+  reactReduxFirebase(firebase, config),
+  reduxFirestore(firebase)
+)(createStore);
 
 const store = createStoreWithFirebase(
   combineReducers({
     ui,
     firebase: firebaseReducer,
+    firestore: firestoreReducer,
     router: routerReducer
   }),
   enhancer

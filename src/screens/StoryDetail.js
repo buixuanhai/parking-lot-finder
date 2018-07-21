@@ -2,38 +2,25 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { compose } from "redux";
-import { firebaseConnect, populate } from "react-redux-firebase";
+import {
+  firebaseConnect,
+  populate,
+  firestoreConnect
+} from "react-redux-firebase";
 import { Redirect } from "react-router-dom";
-import Button from "antd/lib/button";
-import Popconfirm from "antd/lib/popconfirm";
-import { push } from "react-router-redux";
+import get from "lodash/get";
+import Icon from "antd/lib/icon";
+import { push, goBack } from "react-router-redux";
+import { NavBar, Icon as MobileIcon } from "antd-mobile";
 
 const Container = styled.div`
   height: 100vh;
   overflow: auto;
 `;
 
-const Content = styled.p`
+const Content = styled.div`
   padding: 20px;
-  padding-top: 60px;
   white-space: pre-line;
-`;
-
-const Header = styled.div`
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0
-	background-color: white;
-	display: flex;
-	padding: 12px;
-	padding-left: 52px;
-	padding-right: 52px;
-	justify-content: center;
-`;
-
-const Title = styled.h3`
-  text-align: center;
 `;
 
 const Image = styled.img`
@@ -41,8 +28,8 @@ const Image = styled.img`
 `;
 
 class StoryDetail extends Component {
-  handleBack = () => {
-    this.props.push("/");
+  addToFavorite = (userId, storyId) => () => {
+    this.props.firebase.set(`story_favorite/${userId}/${storyId}`, true);
   };
 
   handleDelete = () => {
@@ -55,45 +42,42 @@ class StoryDetail extends Component {
   };
 
   render() {
-    const { title, content, imageURL } = this.props;
-    if (this.props.id) {
+    const {
+      title,
+      goBack,
+      story,
+      userId,
+      match: {
+        params: { id: storyId }
+      }
+    } = this.props;
+    if (story) {
       return (
         <Container>
-          {imageURL && <Image src={imageURL} />}
-          <Button
-            shape="circle"
-            icon="arrow-left"
-            style={{ position: "absolute", top: 10, left: 10, zIndex: 2 }}
-            onClick={this.handleBack}
-          />
-          <Header>
-            <Title>{title}</Title>
-
-            <Popconfirm
-              title="Are you sure delete this story?"
-              onConfirm={this.handleDelete}
-              okText="Yes"
-              placement="leftTop"
-              cancelText="No"
-            >
-              <Button
-                shape="circle"
-                icon="delete"
-                style={{
-                  position: "absolute",
-                  top: 10,
-                  right: 10,
-                  zIndex: 2,
-                  color: "red"
-                }}
+          <NavBar
+            mode="dark"
+            icon={<MobileIcon type="left" />}
+            onLeftClick={() => goBack()}
+            rightContent={[
+              <Icon
+                key="0"
+                type="heart-o"
+                style={{ marginRight: "16px" }}
+                onClick={this.addToFavorite(userId, storyId)}
               />
-            </Popconfirm>
-          </Header>
-          <Content>{content}</Content>
+            ]}
+          >
+            {title}
+          </NavBar>
+          <Content>
+            <div>{story.imageURL && <Image src={story.imageURL} />}</div>
+            <div>{story.content}</div>
+          </Content>
         </Container>
       );
     } else {
-      return <Redirect to="/" />;
+      // return <Redirect to="/" />;
+      return null;
     }
   }
 }
@@ -101,33 +85,22 @@ class StoryDetail extends Component {
 const populates = [{ child: "imageId", root: "uploadedFiles" }];
 
 export default compose(
-  firebaseConnect([{ path: "stories", populates }, { path: "counts" }]),
+  firebaseConnect((props, store) => [
+    { path: `stories/${props.match.params.id}`, populates },
+    { path: "counts" },
+    { path: `story_favorite/${store.getState().firebase.auth.uid}` }
+  ]),
   connect(
-    state => ({
-      ...state.firebase.data,
-      stories: populate(state.firebase, "stories", populates)
+    (state, ownProps) => ({
+      story: state.firebase.data.stories
+        ? state.firebase.data.stories[ownProps.match.params.id]
+        : null,
+      userId: state.firebase.auth.uid,
+      isFavorited: get(
+        state,
+        `firebase.data.story_favorite.${ownProps.match.params.id}`
+      )
     }),
-    { push },
-    (stateProps, dispatchProps, ownProps) => {
-      const { stories } = stateProps;
-      if (stories) {
-        const id = ownProps.match.params.id;
-        const story = stories[id];
-        if (story) {
-          return {
-            ...dispatchProps,
-            ...stateProps,
-            ...ownProps,
-            ...story,
-            id,
-            imageURL: story.imageId ? story.imageId.downloadURL : null
-          };
-        } else {
-          return { ...dispatchProps };
-        }
-      } else {
-        return { ...dispatchProps };
-      }
-    }
+    { push, goBack }
   )
 )(StoryDetail);
