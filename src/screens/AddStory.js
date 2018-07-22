@@ -59,7 +59,11 @@ class AddStory extends Component {
           icon={<Icon type="left" />}
           onLeftClick={() => history.goBack()}
           rightContent={[
-            <span key="1" onClick={event => submit(event)}>
+            <span
+              key="1"
+              onClick={event => submit(event)}
+              style={{ cursor: "pointer" }}
+            >
               Save
             </span>
           ]}

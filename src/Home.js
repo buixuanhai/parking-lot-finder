@@ -104,20 +104,26 @@ class Home extends Component {
             <List.Item thumb={<Icon type="user" />} multipleLine>
               Welcome
             </List.Item>
-            <List.Item thumb={<Icon type="file-add" />} multipleLine>
-              <span onClick={() => push("/stories/add")}>Add story</span>
+            <List.Item
+              onClick={() => push("/stories/add")}
+              thumb={<Icon type="file-add" />}
+              multipleLine
+            >
+              <span>Add story</span>
             </List.Item>
           </Fragment>
         )}
         <List.Item thumb={<Icon type="bars" />} multipleLine>
           Collections
         </List.Item>
-        <List.Item thumb={<Icon type="login" />} multipleLine>
-          {!isLoaded(auth) ? (
-            <span>Loading...</span>
-          ) : isEmpty(auth) ? (
-            <span
-              onClick={() => {
+        <List.Item thumb={<Icon type="heart" />} multipleLine>
+          Favorites
+        </List.Item>
+        <List.Item
+          onClick={
+            auth.isLoaded && !auth.isEmpty
+              ? this.onLogout
+              : () => {
                 prompt(
                   "Login",
                   "Please input login information",
@@ -134,12 +140,17 @@ class Home extends Component {
                   ["Email", "Password"],
                   "ios"
                 );
-              }}
-            >
-              Login
-            </span>
+              }
+          }
+          thumb={<Icon type="login" />}
+          multipleLine
+        >
+          {!isLoaded(auth) ? (
+            <span>Loading...</span>
+          ) : isEmpty(auth) ? (
+            <span>Login</span>
           ) : (
-            <span onClick={this.onLogout}>Logout</span>
+            <span>Logout</span>
           )}
         </List.Item>
       </List>

@@ -20,6 +20,10 @@ const Login = Loadable({
   loader: () => import("./screens/Login"),
   loading: Loading
 });
+const FavoriteStories = Loadable({
+  loader: () => import("./screens/FavoriteStories"),
+  loading: Loading
+});
 
 class App extends Component {
   render() {
@@ -29,6 +33,7 @@ class App extends Component {
           <Switch>
             <Route exact path="/" component={Home} />
             <Route exact path="/stories/add" component={AddStory} />
+            <Route exact path="/stories/favorite" component={FavoriteStories} />
             <Route exact path="/stories/:id" component={StoryDetail} />
             <Route exact path="/login" component={Login} />
             <Route component={() => <div>Not found</div>} />

@@ -38,7 +38,6 @@ class StoryDetail extends Component {
 
   render() {
     const {
-      title,
       goBack,
       story,
       userId,
@@ -63,7 +62,7 @@ class StoryDetail extends Component {
               />
             ]}
           >
-            {title}
+            {story.title}
           </NavBar>
           <Content>
             <div>{story.imageURL && <Image src={story.imageURL} />}</div>
