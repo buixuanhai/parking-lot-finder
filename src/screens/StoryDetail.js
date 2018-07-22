@@ -2,13 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { compose } from "redux";
-import {
-  firebaseConnect,
-  populate,
-  firestoreConnect
-} from "react-redux-firebase";
-import { Redirect } from "react-router-dom";
-import get from "lodash/get";
+import { firebaseConnect } from "react-redux-firebase";
 import Icon from "antd/lib/icon";
 import { push, goBack } from "react-router-redux";
 import { NavBar, Icon as MobileIcon } from "antd-mobile";
@@ -28,8 +22,9 @@ const Image = styled.img`
 `;
 
 class StoryDetail extends Component {
-  addToFavorite = (userId, storyId) => () => {
-    this.props.firebase.set(`story_favorite/${userId}/${storyId}`, true);
+  toggleFavorite = (userId, storyId) => () => {
+    const { firebase, isFavorited } = this.props;
+    firebase.set(`story_favorite/${userId}/${storyId}`, !isFavorited);
   };
 
   handleDelete = () => {
@@ -49,7 +44,8 @@ class StoryDetail extends Component {
       userId,
       match: {
         params: { id: storyId }
-      }
+      },
+      isFavorited
     } = this.props;
     if (story) {
       return (
@@ -61,9 +57,9 @@ class StoryDetail extends Component {
             rightContent={[
               <Icon
                 key="0"
-                type="heart-o"
+                type={isFavorited ? "heart" : "heart-o"}
                 style={{ marginRight: "16px" }}
-                onClick={this.addToFavorite(userId, storyId)}
+                onClick={this.toggleFavorite(userId, storyId)}
               />
             ]}
           >
@@ -76,7 +72,6 @@ class StoryDetail extends Component {
         </Container>
       );
     } else {
-      // return <Redirect to="/" />;
       return null;
     }
   }
@@ -85,22 +80,27 @@ class StoryDetail extends Component {
 const populates = [{ child: "imageId", root: "uploadedFiles" }];
 
 export default compose(
-  firebaseConnect((props, store) => [
-    { path: `stories/${props.match.params.id}`, populates },
-    { path: "counts" },
-    { path: `story_favorite/${store.getState().firebase.auth.uid}` }
-  ]),
+  firebaseConnect((props, store) => {
+    return [
+      { path: `stories/${props.match.params.id}`, populates },
+      { path: "counts" },
+      { path: `story_favorite/${store.getState().firebase.auth.uid}` }
+    ];
+  }),
   connect(
-    (state, ownProps) => ({
-      story: state.firebase.data.stories
-        ? state.firebase.data.stories[ownProps.match.params.id]
-        : null,
-      userId: state.firebase.auth.uid,
-      isFavorited: get(
-        state,
-        `firebase.data.story_favorite.${ownProps.match.params.id}`
-      )
-    }),
+    (state, ownProps) => {
+      return {
+        story: state.firebase.data.stories
+          ? state.firebase.data.stories[ownProps.match.params.id]
+          : null,
+        userId: state.firebase.auth.uid,
+        isFavorited: state.firebase.data.story_favorite
+          ? state.firebase.data.story_favorite[state.firebase.auth.uid][
+            ownProps.match.params.id
+          ]
+          : null
+      };
+    },
     { push, goBack }
   )
 )(StoryDetail);

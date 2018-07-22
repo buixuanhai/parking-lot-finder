@@ -11,36 +11,14 @@ import "firebase/auth";
 import "firebase/database";
 import "firebase/storage";
 import { reactReduxFirebase } from "react-redux-firebase";
-import { Route } from "react-router";
+import { routerReducer, routerMiddleware } from "react-router-redux";
 import createHistory from "history/createBrowserHistory";
-import {
-  ConnectedRouter,
-  routerReducer,
-  routerMiddleware
-} from "react-router-redux";
-import Loadable from "react-loadable";
-import Loading from "./components/Loading";
-import AddStory from "./screens/AddStory";
-import { Switch } from "react-router";
 import { reduxFirestore, firestoreReducer } from "redux-firestore";
-
+import App from "./App";
 // if (process.env.NODE_ENV !== "production") {
 //   const { whyDidYouUpdate } = require("why-did-you-update");
 //   whyDidYouUpdate(React);
 // }
-
-const App = Loadable({
-  loader: () => import("./App"),
-  loading: Loading
-});
-const StoryDetail = Loadable({
-  loader: () => import("./screens/StoryDetail"),
-  loading: Loading
-});
-const Login = Loadable({
-  loader: () => import("./screens/Login"),
-  loading: Loading
-});
 
 export const history = createHistory();
 const historyMiddleware = routerMiddleware(history);
@@ -100,14 +78,7 @@ const store = createStoreWithFirebase(
 
 ReactDOM.render(
   <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <Switch>
-        <Route exact path="/" component={App} />
-        <Route exact path="/stories/add" component={AddStory} />
-        <Route exact path="/stories/:id" component={StoryDetail} />
-        <Route exact path="/login" component={Login} />
-      </Switch>
-    </ConnectedRouter>
+    <App />
   </Provider>,
   document.getElementById("root")
 );
