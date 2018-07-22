@@ -16,8 +16,8 @@ const prompt = Modal.prompt;
 class Home extends Component {
   state = {
     tabKey: "1",
-    page: 1,
     open: false,
+    page: 1,
     itemPerPage: 5
   };
 
@@ -26,15 +26,6 @@ class Home extends Component {
   };
   onLogout = () => {
     this.props.firebase.logout().then(() => message.success("Logged out"));
-  };
-
-  loadMoreStories = () => {
-    if (
-      this.props.counts &&
-      this.props.counts.stories > this.state.page * this.state.itemPerPage
-    ) {
-      this.setState({ page: this.state.page + 1 });
-    }
   };
 
   // componentDidUpdate() {
@@ -70,11 +61,7 @@ class Home extends Component {
           }}
           selected={selectedTab === "storyList"}
         >
-          <StoryList
-            loadMoreStories={this.loadMoreStories}
-            page={page}
-            itemPerPage={itemPerPage}
-          />
+          <StoryList page={1} itemPerPage={5} />
         </TabBar.Item>
         <TabBar.Item
           key="Item"
@@ -116,7 +103,11 @@ class Home extends Component {
         <List.Item thumb={<Icon type="bars" />} multipleLine>
           Collections
         </List.Item>
-        <List.Item thumb={<Icon type="heart" />} multipleLine>
+        <List.Item
+          onClick={() => push("/stories/favorite")}
+          thumb={<Icon type="heart" />}
+          multipleLine
+        >
           Favorites
         </List.Item>
         <List.Item

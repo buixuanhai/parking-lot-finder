@@ -10,7 +10,7 @@ import { connect } from "react-redux";
 import { compose } from "redux";
 import { push } from "react-router-redux";
 
-import { firebaseConnect, populate } from "react-redux-firebase";
+import { firebaseConnect } from "react-redux-firebase";
 
 const antIcon = <Icon type="loading" style={{ fontSize: 24 }} spin />;
 
@@ -19,7 +19,12 @@ const ListContainer = styled.div`
 `;
 
 class StoryList extends Component {
-  state = { stories: [] };
+  state = {
+    stories: [],
+    page: 1,
+    itemPerPage: 5
+  };
+
   static getDerivedStateFromProps(nextProps) {
     if (!nextProps.stories) {
       return null;
@@ -33,9 +38,20 @@ class StoryList extends Component {
       .sort((a, b) => a.order > b.order);
 
     return {
-      stories
+      stories,
+      page: nextProps.page,
+      itemPerPage: nextProps.itemPerPage
     };
   }
+
+  loadMoreStories = () => {
+    if (
+      this.props.counts &&
+      this.props.counts.stories > this.state.page * this.state.itemPerPage
+    ) {
+      this.setState({ page: this.state.page + 1 });
+    }
+  };
 
   render() {
     const { stories } = this.state;
@@ -49,7 +65,7 @@ class StoryList extends Component {
               elementHeight={69.4}
               useWindowAsScrollContainer
               infiniteLoadBeginEdgeOffset={200}
-              onInfiniteLoad={this.props.loadMoreStories}
+              onInfiniteLoad={this.loadMoreStories}
             >
               {stories.map((item, index) => (
                 <Link
@@ -75,25 +91,34 @@ class StoryList extends Component {
   }
 }
 
-const populates = [{ child: "imageId", root: "uploadedFiles" }];
+const populates = (dataKey, originalData) => [
+  {
+    child: Object.keys(originalData)[0],
+    root: "stories"
+  }
+];
 
 export default compose(
   firebaseConnect(props => [
     {
-      path: "stories",
-      populates: populates,
-      queryParams: [
-        `limitToFirst=${props.itemPerPage * props.page}`,
-        "orderByChild=order"
-      ]
+      path: "story_favorite",
+      populates
     },
+    // {
+    //   path: "stories",
+    //   queryParams: [
+    //     `limitToFirst=${props.itemPerPage * props.page}`,
+    //     "orderByChild=order"
+    //   ]
+    // },
     {
       path: "counts"
     }
   ]),
   connect(
     state => ({
-      stories: populate(state.firebase, "stories", populates)
+      counts: state.firebase.data.counts,
+      stories: state.firebase.data.stories
     }),
     { push }
   )

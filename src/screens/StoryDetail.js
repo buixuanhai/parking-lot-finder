@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { compose } from "redux";
-import { firebaseConnect } from "react-redux-firebase";
+import { firebaseConnect, populate } from "react-redux-firebase";
 import Icon from "antd/lib/icon";
 import { push, goBack } from "react-router-redux";
 import { NavBar, Icon as MobileIcon } from "antd-mobile";
@@ -65,7 +65,7 @@ class StoryDetail extends Component {
             {story.title}
           </NavBar>
           <Content>
-            <div>{story.imageURL && <Image src={story.imageURL} />}</div>
+            <div>{story.image && <Image src={story.image.downloadURL} />}</div>
             <div>{story.content}</div>
           </Content>
         </Container>
@@ -76,7 +76,7 @@ class StoryDetail extends Component {
   }
 }
 
-const populates = [{ child: "imageId", root: "uploadedFiles" }];
+const populates = [{ child: "image", root: "uploadedFiles" }];
 
 export default compose(
   firebaseConnect((props, store) => {
@@ -90,7 +90,9 @@ export default compose(
     (state, ownProps) => {
       return {
         story: state.firebase.data.stories
-          ? state.firebase.data.stories[ownProps.match.params.id]
+          ? populate(state.firebase, "stories", populates)[
+            ownProps.match.params.id
+          ]
           : null,
         userId: state.firebase.auth.uid,
         isFavorited: state.firebase.data.story_favorite

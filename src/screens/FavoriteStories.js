@@ -75,17 +75,18 @@ class FavoriteStories extends Component {
   }
 }
 
-const populates = [{ child: "imageId", root: "uploadedFiles" }];
+const populates = (dataKey, originalData) => [
+  {
+    child: Object.keys(originalData)[0],
+    root: "stories"
+  }
+];
 
 export default compose(
-  firebaseConnect(props => [
+  firebaseConnect(() => [
     {
-      path: "stories",
-      populates: populates,
-      queryParams: [
-        `limitToFirst=${props.itemPerPage * props.page}`,
-        "orderByChild=order"
-      ]
+      path: "story_favorite",
+      populates
     },
     {
       path: "counts"
